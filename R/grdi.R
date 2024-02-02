@@ -85,24 +85,39 @@ grep_slot_val <- function(col_name, x, ...) {
   return(result)
 }
 
-replace_with_GRDI_term <- function(df, col_name, query, dry_run = TRUE, ...){
-  grdi_val <- grep_slot_val(col_name = col_name, x = query, ...)
+
+replace_with_GRDI_term <- function(df, col_name, term_query, data_query = NULL,
+                                   term_query_dist = 0, data_query_dist = 0){
+
+  if (is.null(data_query)){
+    data_query <- term_query
+  }
+
+  grdi_val <- grep_slot_val(col_name = col_name,
+                            x = term_query,
+                            max.distance = term_query_dist)
+
   if (length(grdi_val) == 0){
-    message("No grdi value found, exiting")
+    message("No grdi term found for query ", term_query)
+    message("exiting")
   } else if (length(grdi_val) > 1) {
-    message("Found multiple matches: ", paste(grdi_val, collapse = ', '))
-    message("Exiting")
+    message("Found multiple GRDI terms for query ", term_query, ": ", paste(grdi_val, collapse = ', '))
+    message("exiting")
   } else {
-    x <- grepl(x = df[[col_name]], query)
-    table(x)[["TRUE"]]
-    cat("Replacing", table(x)[["TRUE"]], '/', length(df[[col_name]]),
-        "instances of", query, "->", grdi_val, '\n', sep = ' ')
-    if (dry_run){
-      message("dry-run, exiting")
+    x <- agrep(x = df[[col_name]], data_query, max.distance = data_query_dist)
+    if (length(x)==0){
+      message("No matches in data for query ", data_query)
+      message("exiting")
     } else {
+      n <- length(df[[col_name]][x])
+      message("Replacing ", n,
+              " instances of data values ",
+              paste(unique(df[[col_name]][x]), collapse = ', '),
+              " --> ",
+              grdi_val)
       df[[col_name]][x] <- grdi_val
+      return(df)
     }
   }
-  return(df)
 }
 
