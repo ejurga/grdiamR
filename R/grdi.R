@@ -85,9 +85,9 @@ grep_slot_val <- function(col_name, x, ...) {
   return(result)
 }
 
-
 replace_with_GRDI_term <- function(df, col_name, term_query, data_query = NULL,
-                                   term_query_dist = 0, data_query_dist = 0){
+                                   term_query_dist = 0, data_query_dist = 0,
+                                   select_GRDI_term = NULL){
 
   if (is.null(data_query)){
     data_query <- term_query
@@ -100,10 +100,18 @@ replace_with_GRDI_term <- function(df, col_name, term_query, data_query = NULL,
   if (length(grdi_val) == 0){
     message("No grdi term found for query ", term_query)
     message("exiting")
+
   } else if (length(grdi_val) > 1) {
-    message("Found multiple GRDI terms for query ", term_query, ": ", paste(grdi_val, collapse = ', '))
-    message("exiting")
-  } else {
+    message("Found GRDI terms for query ", term_query, ": ", paste(grdi_val, collapse = ', '))
+    if (is.null(select_GRDI_term)){
+      message("exiting")
+    } else {
+      grdi_val <- grdi_val[select_GRDI_term]
+      message("Selecting term: ", grdi_val)
+    }
+  }
+
+  if (length(grdi_val) == 1){
     x <- agrep(x = df[[col_name]], data_query, max.distance = data_query_dist)
     if (length(x)==0){
       message("No matches in data for query ", data_query)
