@@ -66,6 +66,21 @@ get_slot_values <- function(slot_name) {
   return(values)
 }
 
+get_categories <- function(){
+  x <- grdi_schema$classes$GRDI$slot_usage
+  fields <- names(x)
+  cats <- vector()
+  for (field in fields){
+    category <- x[[field]]$slot_group
+    cats <- append(cats, category)
+  }
+  categories <- list()
+  for ( a in unique(cats) ){
+    categories[[a]] <- fields[cats==a]
+  }
+  return(categories)
+}
+
 get_slots_with_menus <- function(){
   slots_with_menus <- list()
   for (slot in names(get_slots())){
@@ -129,3 +144,41 @@ replace_with_GRDI_term <- function(df, col_name, term_query, data_query = NULL,
   }
 }
 
+get_null_value <- function(x=NULL){
+  nulls <- names(grdi_schema$enums$`null value menu`$permissible_values)
+  if (is.null(x)){
+    return(nulls)
+  } else {
+    value <- grep(x = nulls, pattern = x, value = TRUE)
+    if (length(value)==0){
+      stop("No value found for query ", x, " in null value menu")
+    } else {
+      return(value)
+    }
+  }
+}
+
+get_info <- function(slot){
+  slots <- get_slots()
+  x <- names(slots)==slot
+  slot <- slots[x][[1]]
+  cat("Description: ", str_wrap(slot$description, width = 80), "\n")
+  cat("Comments: ", str_wrap(slot$comments,  width = 80), "\n")
+}
+
+agrep_across_all_field_terms <- function(x) {
+  # Get a list of the field names and their associated terms.
+  slots <- get_slots()
+  all_slots <- list()
+  for (slot in names(slots)){
+    vals <- get_slot_values(slot_name = slot)
+    all_slots[[slot]] <- vals
+  }
+  # Search for the user-input across all the field terms, and print to return
+  for ( slot in names(all_slots) ){
+    results <- agrep(pattern = x, x = all_slots[[slot]])
+    if (length(results)>0){
+      print(paste("Field:", slot, "-->", all_slots[[slot]][results]))
+    }
+  }
+}
