@@ -42,14 +42,15 @@ get_slots_by_flag <- function(flag = c('recommended', 'required')) {
   return(slots[slot_list])
 }
 
-get_slot_values <- function(slot_name) {
-  # Get the full slots from the schema
+get_slot_menu_names <- function(slot_name){
   slots <- get_slots()
-  # Get just the one slot
   slot <- slots[[slot_name]]
-  # Get the "any_of" slot, or the "range" slot which if present contains the
-  # menu
   menus <- unlist(list(slot[["any_of"]], slot[["range"]]))
+  return(unname(menus))
+}
+
+get_slot_values <- function(slot_name) {
+  menus <- get_slot_menu_names(slot_name)
   # Get the values of the menu
   values <- vector()
   for (menu in menus){
@@ -83,11 +84,12 @@ get_categories <- function(){
 
 get_slots_with_menus <- function(){
   slots_with_menus <- list()
-  for (slot in names(get_slots())){
-    vals <- get_slot_values(slot)
-    vals_no_text <- vals[ !(vals == "WhitespaceMinimizedString" | vals == "null value menu") ]
+  for (slot_name in names(get_slots())){
+    menu_names <- get_slot_menu_names(slot_name)
+    vals_no_text <- menu_names[ !(menu_names == "WhitespaceMinimizedString" |
+                                    menu_names == "null value menu") ]
     if (length(vals_no_text > 1)){
-      slots_with_menus[[slot]] <- vals_no_text
+      slots_with_menus[[slot_name]] <- vals_no_text
     }
   }
   return(names(slots_with_menus))
