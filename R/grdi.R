@@ -168,19 +168,30 @@ get_info <- function(slot){
   cat("Comments: ", str_wrap(slot$comments,  width = 80), "\n")
 }
 
-agrep_across_all_field_terms <- function(x) {
-  # Get a list of the field names and their associated terms.
+get_all_slot_values <- function(){
   slots <- get_slots()
   all_slots <- list()
   for (slot in names(slots)){
     vals <- get_slot_values(slot_name = slot)
     all_slots[[slot]] <- vals
   }
+  return(all_slots)
+}
+
+agrep_across_all_field_terms <- function(x, ...) {
+  # Get a list of the field names and their associated terms.
+  all_slots <- get_all_slot_values()
   # Search for the user-input across all the field terms, and print to return
   for ( slot in names(all_slots) ){
-    results <- agrep(pattern = x, x = all_slots[[slot]])
+    results <- agrep(pattern = x, x = all_slots[[slot]], ...)
     if (length(results)>0){
       print(paste("Field:", slot, "-->", all_slots[[slot]][results]))
     }
   }
+}
+
+get_unique_ontologies <- function(){
+  slot_vals <- get_all_slot_values()
+  onts <- unique(unname(unlist(x)))
+  onts <- onts[!onts=="WhitespaceMinimizedString"]
 }
