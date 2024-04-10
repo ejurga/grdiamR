@@ -13,21 +13,19 @@
 #   Check Package:             'Ctrl + Shift + E'
 #   Test Package:              'Ctrl + Shift + T'
 
-get_slots_with_menus <- function(){
-  slots_with_menus <- list()
-  for (slot_name in names(get_slots())){
-    menu_names <- get_slot_menu_names(slot_name)
-    vals_no_text <- menu_names[ !(menu_names == "WhitespaceMinimizedString" |
-                                    menu_names == "null value menu") ]
-    if (length(vals_no_text > 1)){
-      slots_with_menus[[slot_name]] <- vals_no_text
+get_fields_with_menus <- function(){
+  data("grdi")
+  slots <- vector()
+  for (fn in names(grdi$fields)){
+    if ( grdi$fields[[fn]]$pick_list==TRUE ){
+      slots <- c(slots, fn)
     }
   }
-  return(names(slots_with_menus))
+  return(slots)
 }
 
 grep_slot_val <- function(col_name, x, ...) {
-  values <- get_slot_values(slot_name = col_name)
+  values <- grdi$fields[[col_name]]$values
   result <- agrep(x = values, pattern = x, value = TRUE, ...)
   return(result)
 }
@@ -90,38 +88,29 @@ get_null_value <- function(x=NULL){
   }
 }
 
-get_info <- function(slot){
-  slots <- get_slots()
-  x <- names(slots)==slot
-  slot <- slots[x][[1]]
-  cat("Description: ", str_wrap(slot$description, width = 80), "\n")
-  cat("Comments: ", str_wrap(slot$comments,  width = 80), "\n")
+get_info <- function(field){
+  f <- grdi$fields[[field]]
+  cat("Description: ", str_wrap(f$description, width = 80), "\n")
+  cat("Comments: ", str_wrap(f$comments, width = 80), "\n")
 }
 
-get_all_slot_values <- function(){
-  slots <- get_slots()
-  all_slots <- list()
-  for (slot in names(slots)){
-    vals <- get_slot_values(slot_name = slot)
-    all_slots[[slot]] <- vals
+get_all_field_ontology_terms <- function(){
+  fields <- get_fields_with_menus()
+  onts <- vector()
+  for (field in fields){
+    onts <- c(onts, grdi$fields[[field]]$values)
   }
-  return(all_slots)
+  return(unique(onts))
 }
 
 agrep_across_all_field_terms <- function(x, ...) {
   # Get a list of the field names and their associated terms.
-  all_slots <- get_all_slot_values()
+  fields <- get_fields_with_menus()
   # Search for the user-input across all the field terms, and print to return
-  for ( slot in names(all_slots) ){
-    results <- agrep(pattern = x, x = all_slots[[slot]], ...)
+  for ( field in fields ){
+    results <- agrep(pattern = x, x = grdi$fields[[field]]$values, value = TRUE, ...)
     if (length(results)>0){
-      print(paste("Field:", slot, "-->", all_slots[[slot]][results]))
+      print(paste("Field:", field, "-->", results))
     }
   }
-}
-
-get_unique_ontologies <- function(){
-  slot_vals <- get_all_slot_values()
-  onts <- unique(unname(unlist(x)))
-  onts <- onts[!onts=="WhitespaceMinimizedString"]
 }
