@@ -53,7 +53,7 @@ get_slots_by_flag <- function(flag = c('recommended', 'required')) {
   return(slots[slot_list])
 }
 
-get_flag <- function(slo){
+get_flag <- function(slot){
 
   if ( length(slot$required)>0 ) {
     flag <- "required"
