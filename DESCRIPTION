@@ -1,11 +1,10 @@
 Package: grdiamR
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.1
+Title: For interacting with the GRDI-AMR2 data template and ontology
+Version: 0.2
 Author: Emil Jurga
 Maintainer: Emil Jurga <ejacc@protonmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Provides functions to interact with the GRDI-AMR2 ontology
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
