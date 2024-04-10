@@ -14,7 +14,6 @@
 #   Test Package:              'Ctrl + Shift + T'
 
 get_fields_with_menus <- function(){
-  data("grdi")
   slots <- vector()
   for (fn in names(grdi$fields)){
     if ( grdi$fields[[fn]]$pick_list==TRUE ){
@@ -24,8 +23,8 @@ get_fields_with_menus <- function(){
   return(slots)
 }
 
-grep_slot_val <- function(col_name, x, ...) {
-  values <- grdi$fields[[col_name]]$values
+grep_field_val <- function(field, x, ...) {
+  values <- grdi$fields[[field]]$values
   result <- agrep(x = values, pattern = x, value = TRUE, ...)
   return(result)
 }
@@ -38,7 +37,7 @@ replace_with_GRDI_term <- function(df, col_name, term_query, data_query = NULL,
     data_query <- term_query
   }
 
-  grdi_val <- grep_slot_val(col_name = col_name,
+  grdi_val <- grep_field_val(col_name = col_name,
                             x = term_query,
                             max.distance = term_query_dist)
 
