@@ -7,5 +7,5 @@
 get_all_field_ontology_terms()
 }
 \description{
-Get a list of all the ontology terms used in the GRDI standard.
+Returns a datafram of fields and the terms in those fields
 }
