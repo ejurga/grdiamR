@@ -11,6 +11,10 @@ df <- openxlsx::read.xlsx(xlsxFile = master_ref_file,
 terms_from_master_sheet <-
   df %>%
   as_tibble() %>%
-  select(Field, Term, Ontology.Identifier, Definition) %>%
-  filter(!is.na(Term))
-usethis::use_data(terms_from_master_sheet)
+  select(Field, Term, Ontology.Identifier, Definition,
+         contains("Deprecated")) %>%
+  filter(!is.na(Term)) %>%
+  mutate(Field = trimws(Field, which = "both"),
+         Term = trimws(Term, which = "both"),
+         Ontology.Identifier = trimws(Ontology.Identifier))
+usethis::use_data(terms_from_master_sheet, overwrite = TRUE)

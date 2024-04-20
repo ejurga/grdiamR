@@ -1,11 +1,3 @@
-# To import the raw YAML file
-grdi_yaml_url <- "https://raw.githubusercontent.com/cidgoh/pathogen-genomics-package/main/templates/grdi/schema.yaml"
-download.file(url = grdi_yaml_url,
-	      destfile = "data-raw/schema.yaml",
-	      method = "wget")
-grdi_schema <- yaml::yaml.load_file(input = "data-raw/schema.yaml")
-usethis::use_data(grdi_schema, overwrite = TRUE, internal = TRUE)
-
 # To generate the easier to use grdi list used in the functions
 get_slots <- function(grdi_schema){
   # Get lot (column) names
@@ -28,7 +20,7 @@ get_slot_values <- function(slot) {
   values <- vector()
   for (menu in menus){
     # If one of these, just add them to the values list.
-    if (menu == "WhitespaceMinimizedString") {
+    if (menu == "WhitespaceMinimizedString" | menu == "date") {
       values <- append(values, menu)
     # Otherwise, descend into the schema and return the menu items
     } else {
@@ -72,15 +64,14 @@ make_field <- function(slot){
     comments = slot$comments,
     group = grdi_schema$classes$GRDI$slot_usage[[slot$name]]$slot_group,
     flag = get_flag(slot),
-    pick_list = !any(grepl(x = values, "WhitespaceMinimizedString")),
+    pick_list = !any(values %in% c("WhitespaceMinimizedString", "date")),
     values = values
    )
   return(x)
 }
 
-create_grdi <- function(){
+create_grdi <- function(grdi_schema){
 
-  data("grdi_schema")
   slots <- get_slots(grdi_schema)
 
   fields <- list()
@@ -96,7 +87,25 @@ create_grdi <- function(){
       fields = fields
   )
 
+  # Some manual annoyance to get the AMR menus in there...
+  amr_menus <- grep(x = names(grdi_schema$enums), "antimicrobial", value = T)
+  for (amr_field in amr_menus){
+    field_name <- sub(x = amr_field, " menu", "")
+    grdi$fields[[field_name]] <-
+      list(group = "AMR Phenotypic Test Information" ,
+           flag = "optional",
+           pick_list = TRUE,
+           values = names(grdi_schema$enums[[amr_field]]$permissible_values))
+  }
+
   return(grdi)
 }
-grdi <- create_grdi()
+
+# To import the raw YAML file
+grdi_yaml_url <- "https://raw.githubusercontent.com/cidgoh/pathogen-genomics-package/main/templates/grdi/schema.yaml"
+download.file(url = grdi_yaml_url,
+	      destfile = "data-raw/schema.yaml",
+	      method = "wget")
+grdi_schema <- yaml::yaml.load_file(input = "data-raw/schema.yaml")
+grdi <- create_grdi(grdi_schema)
 usethis::use_data(grdi, overwrite = TRUE)
