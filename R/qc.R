@@ -15,13 +15,10 @@ compare_one_lookup_field <- function(df, field){
     s.df %>%
     filter(n<3)
 
-  if (nrow(errors.df)==0){
-    message("Field ", field, ": No discrepancies")
-  } else {
-    message("Field ", field, " Discrepancies detected")
+  if (nrow(errors.df)!=0){
     errors.df$Field <- field
     return(errors.df)
-  }
+    }
 }
 
 
@@ -42,6 +39,10 @@ compare_lookup_tables <- function(){
   data("terms_from_master_sheet")
   data("excel_lookup_values")
 
+  message("yaml version: ", grdi$info$version)
+  message("template version: ", unique(excel_lookup_values$version))
+  message("master version: ", unique(terms_from_master_sheet$version))
+
   yaml <-
     get_all_field_ontology_terms() %>%
     separate_ontology_terms(terms) %>%
@@ -52,6 +53,7 @@ compare_lookup_tables <- function(){
   excel_template <-
     excel_lookup_values %>%
     filter(Field != "antimicrobial_agent_name") %>%
+    select(-version) %>%
     mutate(Table = "template")
 
   master <-

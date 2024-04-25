@@ -1,3 +1,4 @@
+library(tidyverse)
 # To generate the easier to use grdi list used in the functions
 get_slots <- function(grdi_schema){
   # Get lot (column) names
