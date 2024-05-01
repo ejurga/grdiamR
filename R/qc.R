@@ -1,3 +1,5 @@
+require(tidyverse)
+
 #' Internal: compare a single field and return decrepancies.
 #'
 #' Used in [compare_lookup_tables]
@@ -7,7 +9,7 @@ compare_one_lookup_field <- function(df, field){
 
   s.df <-
     f.df %>%
-    group_by(Term, ID) %>%
+    group_by(Term, Id) %>%
     summarise(present.in = list(Table), .groups = "drop" ) %>%
     mutate(n = lengths(present.in))
 
@@ -21,6 +23,43 @@ compare_one_lookup_field <- function(df, field){
     }
 }
 
+#' Return a df of ontology terms and fields from all three sources
+#'
+#' Get a datagrame with the ontology terms, ids, and fields of the
+#' GRDI standard, from the Master excel sheet, the DataHarmonizer YAML,
+#' and the Excel template
+#'
+#' @export
+get_terms_from_excel_and_yaml_sources <- function(){
+
+  data("terms_from_master_sheet")
+  data("excel_lookup_values")
+
+  yaml <-
+    get_all_field_ontology_terms() %>%
+    separate_ontology_terms(Terms) %>%
+    filter(!is.na(Id)) %>%
+    mutate(Table = "yaml")
+
+  excel_template <-
+    excel_lookup_values %>%
+    filter(Field != "antimicrobial_agent_name") %>%
+    select(-version) %>%
+    mutate(Table = "template")
+
+  master <-
+    terms_from_master_sheet %>%
+    select(Field, Term, Ontology.Identifier) %>%
+    rename(Id = Ontology.Identifier) %>%
+    mutate(Table = "master")
+
+  df <-
+    bind_rows(yaml, master, excel_template) %>%
+    filter(!Id %in% extract_ont_id(get_null_value()))
+
+  return(df)
+
+}
 
 #' Check for discrepancies in the various forms of the GRDI template
 #'
@@ -36,35 +75,7 @@ compare_one_lookup_field <- function(df, field){
 #' @export
 compare_lookup_tables <- function(){
 
-  data("terms_from_master_sheet")
-  data("excel_lookup_values")
-
-  message("yaml version: ", grdi$info$version)
-  message("template version: ", unique(excel_lookup_values$version))
-  message("master version: ", unique(terms_from_master_sheet$version))
-
-  yaml <-
-    get_all_field_ontology_terms() %>%
-    separate_ontology_terms(terms) %>%
-    filter(!is.na(ID)) %>%
-    rename(Field = field) %>%
-    mutate(Table = "yaml")
-
-  excel_template <-
-    excel_lookup_values %>%
-    filter(Field != "antimicrobial_agent_name") %>%
-    select(-version) %>%
-    mutate(Table = "template")
-
-  master <-
-    terms_from_master_sheet %>%
-    select(Field, Term, Ontology.Identifier) %>%
-    rename(ID = Ontology.Identifier) %>%
-    mutate(Table = "master")
-
-  df <-
-    bind_rows(yaml, master, excel_template) %>%
-    filter(!ID %in% extract_ont_id(get_null_value()))
+  df <- get_terms_from_excel_and_yaml_sources()
 
   # Temporary fixes
   df$Field = str_replace(df$Field, " menu", "")
