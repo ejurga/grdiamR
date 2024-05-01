@@ -133,12 +133,15 @@ get_all_field_ontology_terms <- function(){
   results <- list()
   for (fn in fields_w_menus){
     results[[fn]] <-
-      tibble(field = fn,
-             terms = as.character(grdi$fields[[fn]]$values))
+      tibble(Field = fn,
+             Terms = as.character(grdi$fields[[fn]]$values))
   }
   df <- bind_rows(results)
+  filtered <-
+    df %>%
+    filter(!grepl(x=Terms, "organizational term"))
 
-  return(df)
+  return(filtered)
 }
 
 #' Search for an ontology term across all the possible GRDI fields.
@@ -198,30 +201,30 @@ separate_ontology_terms <- function(data, col){
   separate_wider_regex(data, {{ col }},
                        patterns = c(Term = "^.+",
                                     "\\[",
-                                    ID = "[A-Za-z_]+[:_][A-Z0-9]+",
+                                    Id = "[A-Za-z_]+[:_][A-Z0-9]+",
                                     "\\]$"), too_few = "align_start") %>%
   mutate(Term = trimws(Term),
-         ID = sub(x = ID, "_", ":"))
+         Id = sub(x = Id, "_", ":"))
 }
 
 #' Return the fields of a grdi categery
-#' 
+#'
 #' Use this to return the fields (and their associated data) that belong
 #' to one of the GRDI field categories.
-#' 
+#'
 #' @param x The GRDI group. Can be an approximate match
-#' 
+#'
 #' @export
 get_fields_of_group <- function(x){
-  
-  group <- agrep(x=grdi$groups, x, ignore.case = TRUE, value = TRUE, max.distance = 0.1)   
+
+  group <- agrep(x=grdi$groups, x, ignore.case = TRUE, value = TRUE, max.distance = 0.1)
   stopifnot("x must uniquely match a group" = length(group)==1)
-  
+
   fields <- list()
   for (fn in names(grdi$fields)){
     if ( grdi$fields[[fn]]$group == group ){
       fields[[fn]] <- grdi$fields[[fn]]
-    } 
+    }
   }
   return(fields)
 }
@@ -231,13 +234,13 @@ get_fields_of_group <- function(x){
 #'
 #' Rerturn a vector to filter out AMR columns
 #'
-#' @export 
+#' @export
 amr_regexes <-function(){
-    c("_resistance_phenotype", 
-      "_measurement*", 
+    c("_resistance_phenotype",
+      "_measurement*",
       "_laboratory_typing_*",
-      "_vendor_name", 
-      "_testing_standard*", 
+      "_vendor_name",
+      "_testing_standard*",
       "_breakpoint")
 }
 
