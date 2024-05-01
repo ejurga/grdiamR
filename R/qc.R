@@ -55,7 +55,7 @@ get_terms_from_excel_and_yaml_sources <- function(){
 
   df <-
     bind_rows(yaml, master, excel_template) %>%
-    filter(!Id %in% extract_ont_id(get_null_value()))
+    filter( !(is.na(Id) | Id == "Not Applicable") )
 
   return(df)
 
