@@ -77,6 +77,10 @@ compare_lookup_tables <- function(){
 
   df <- get_terms_from_excel_and_yaml_sources()
 
+  df <-
+    df %>%
+    filter(!Id %in% extract_ont_id(get_null_value()))
+
   # Temporary fixes
   df$Field = str_replace(df$Field, " menu", "")
   df$Field = str_replace(df$Field, "^production_stream$", "food_product_production_stream")
