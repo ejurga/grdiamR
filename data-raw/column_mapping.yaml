@@ -1,0 +1,369 @@
+sample_collector_sample_ID:
+  table: samples
+  column: sample_collector_sample_id
+alternative_sample_ID:
+  table: alternative_sample_ids
+  column: alternative_sample_id
+sample_collected_by:
+  table: collection_information
+  column: sample_collected_by
+sample_collected_by_laboratory_name:
+  table: collection_information
+  column: contact_information
+sample_collection_project_name:
+  table: collection_information
+  column: sample_collection_project_name
+sample_plan_name:
+  table: collection_information
+  column: sample_plan
+sample_plan_ID:
+  table: collection_information
+  column: sample_plan
+sample_collector_contact_name:
+  table: collection_information
+  column: contact_information
+sample_collector_contact_email:
+  table: collection_information
+  column: contact_information
+purpose_of_sampling:
+  table: sample_purpose
+  column: purpose_of_sampling
+presampling_activity:
+  table: sample_activity 
+  column: presampling_activity
+presampling_activity_details:
+  table: collection_information
+  column: presampling_activity_details
+specimen_processing:
+  table: collection_information
+  column: specimen_processing
+geo_loc_name (country):
+  table: geo_loc
+  column: geo_loc_name_country
+geo_loc_name (state/province/region):
+  table: geo_loc
+  column: geo_loc_name_state_province_region
+geo_loc_name (site):
+  table: geo_loc
+  column: geo_loc_name_site
+food_product_origin_geo_loc_name (country):
+  table: food_data
+  column: food_product_origin_country
+host_origin_geo_loc_name (country):
+  table: hosts
+  column: host_origin_geo_loc_name_country
+geo_loc latitude:
+  table: geo_loc
+  column: geo_loc_latitude
+geo_loc longitude:
+  table: geo_loc
+  column: geo_loc_longitude
+sample_collection_date:
+  table: collection_information
+  column: sample_collection_date
+sample_collection_date_precision:
+  table: collection_information
+  column: sample_collection_date_precision
+sample_received_date:
+  table: collection_information
+  column: sample_received_date
+original_sample_description:
+  table: collection_information
+  column: original_sample_description
+environmental_site:
+  table: environment_data_site
+  column: environmental_site
+water_depth:
+  table: environmental_data
+  column: water_depth
+water_depth_units:
+  table: NA
+  column: NA
+sediment_depth:
+  table: environmental_data
+  column: sediment_depth
+sediment_depth_units:
+  table: NA
+  column: NA
+air_temperature:
+  table: environmental_data
+  column: air_temperature
+air_temperature_units:
+  table: NA
+  column: NA
+water_temperature:
+  table: environmental_data
+  column: water_temperature
+water_temperature_units:
+  table: NA
+  column: NA
+weather_type:
+  table: environment_data_weather_type
+  column: weather_type
+available_data_types:
+  table: environment_data_available_data_type
+  column: available_data_type
+available_data_type_details:
+  table: NA
+  column: NA
+animal_or_plant_population:
+  table: environment_data_animal_plant
+  column: animal_or_plant_population
+environmental_material:
+  table: environment_data_material
+  column: environmental_material
+anatomical_material:
+  table: anatomical_data_material
+  column: anatomical_material
+body_product:
+  table: anatomical_data_body
+  column: body_product
+anatomical_part:
+  table: anatomical_data_part
+  column: anatomical_part
+anatomical_region:
+  table: anatomical_data
+  column: anatomical_region
+food_product:
+  table: food_data_product
+  column: food_product
+food_product_properties:
+  table: food_data_product_property
+  column: food_product_property
+animal_source_of_food:
+  table: food_data_source
+  column: animal_source_of_food
+food_product_production_stream:
+  table: food_data
+  column: food_product_production_stream
+sample_storage_method:
+  table: collection_information
+  column: sample_storage_method
+sample_storage_medium:
+  table: collection_information
+  column: sample_storage_medium
+collection_device:
+  table: collection_information
+  column: collection_device
+collection_method:
+  table: collection_information
+  column: collection_method
+food_packaging:
+  table: food_data_packaging
+  column: food_packaging
+food_quality_date:
+  table: food_data
+  column: food_quality_date
+food_packaging_date:
+  table: food_data
+  column: food_packaging_date
+host (common name):
+  table: hosts
+  column: host_common_name
+host (scientific name):
+  table: hosts
+  column: host_scientific_name
+host (ecotype):
+  table: hosts
+  column: host_ecotype
+host (breed):
+  table: hosts
+  column: host_breed
+host (food production name):
+  table: hosts
+  column: host_food_production_name
+host_age_bin:
+  table: hosts
+  column: host_age_bin
+host_disease:
+  table: hosts
+  column: host_disease
+microbiological_method:
+  table: isolates
+  column: microbiological_method
+strain:
+  table: isolates
+  column: strain
+isolate_ID:
+  table: isolates
+  column: isolate_id
+alternative_isolate_ID:
+  table: alternative_isolate_ids
+  column: alternative_isolate_id
+progeny_isolate_ID:
+  table: isolates
+  column: progeny_isolate_id
+IRIDA_isolate_ID:
+  table: isolates
+  column: irida_isolate_id
+IRIDA_project_ID:
+  table: isolates
+  column: irida_project_id
+isolated_by:
+  table: isolates
+  column: isolated_by
+isolated_by_laboratory_name:
+  table: isolates 
+  column: contact_information
+isolated_by_contact_name:
+  table: isolates
+  column: contact_information
+isolated_by_contact_email:
+  table: isolates
+  column: contact_information 
+isolation_date:
+  table: isolates
+  column: isolation_date
+isolate_received_date:
+  table: isolates
+  column: isolate_received_date
+organism:
+  table: isolates
+  column: organism
+taxonomic_identification_process:
+  table: isolates
+  column: taxonomic_identification_process
+taxonomic_identification_process_details:
+  table: isolates
+  column: taxonomic_identification_process_details
+serovar:
+  table: isolates
+  column: serovar
+serotyping_method:
+  table: isolates
+  column: serotyping_method
+phagetype:
+  table: isolates
+  column: phagetype
+library_ID:
+  table: sequencing
+  column: library_id
+sequenced_by:
+  table: sequencing
+  column: sequenced_by
+sequenced_by_laboratory_name:
+  table: sequencing
+  column: contact_information 
+sequenced_by_contact_name:
+  table: sequencing
+  column: contact_information 
+sequenced_by_contact_email:
+  table: sequencing
+  column: contact_information 
+purpose_of_sequencing:
+  table: sequencing_purpose
+  column: purpose_of_sequencing
+sequencing_project_name:
+  table: sequencing
+  column: sequencing_project_name
+sequencing_platform:
+  table: sequencing
+  column: sequencing_platform
+sequencing_instrument:
+  table: sequencing
+  column: sequencing_instrument
+sequencing_assay_type:
+  table: NA
+  column: NA
+library_preparation_kit:
+  table: sequencing
+  column: library_preparation_kit
+sequencing_protocol:
+  table: sequencing
+  column: sequencing_protocol
+r1_fastq_filename:
+  table: sequencing
+  column: r1_fastq_filename
+r2_fastq_filename:
+  table: sequencing
+  column: r2_fastq_filename
+fast5_filename:
+  table: sequencing
+  column: fast5_filename
+assembly_filename:
+  table: sequencing
+  column: assembly_filename
+sequence_submitted_by:
+  table: public_repository_information
+  column: sequence_submitted_by
+sequence_submitted_by_contact_name:
+  table: public_repository_information
+  column: contact_information
+sequence_submitted_by_contact_email:
+  table: public_repository_information
+  column: contact_information
+publication_ID:
+  table: public_repository_information
+  column: publication_id
+attribute_package:
+  table: public_repository_information
+  column: attribute_package
+bioproject_accession:
+  table: public_repository_information
+  column: bioproject_accession
+biosample_accession:
+  table: public_repository_information
+  column: biosample_accession
+SRA_accession:
+  table: public_repository_information
+  column: sra_accession
+GenBank_accession:
+  table: public_repository_information
+  column: genbank_accession
+prevalence_metrics:
+  table: risk_assessment
+  column: prevalence_metrics
+prevalence_metrics_details:
+  table: risk_assessment
+  column: prevalence_metrics_details
+stage_of_production:
+  table: risk_assessment
+  column: stage_of_production
+experimental_intervention:
+  table: risk_activity
+  column: experimental_intervention
+experiment_intervention_details:
+  table: risk_assessment
+  column: experimental_intervention_details
+AMR_testing_by:
+  table: amr_info
+  column: amr_testing_by
+AMR_testing_by_laboratory_name:
+  table: amr_info
+  column: contact_information 
+AMR_testing_by_contact_name:
+  table: amr_info
+  column: contact_information 
+AMR_testing_by_contact_email:
+  table: amr_info
+  column: contact_information 
+AMR_testing_date:
+  table: amr_info
+  column: amr_testing_date
+authors:
+  table: NA
+  column: NA
+DataHarmonizer provenance:
+  table: NA
+  column: NA
+antimicrobial_resistance_phenotype:
+  table: amr_antibiotics_profile
+  column: antimicrobial_phenotype
+antimicrobial_measurement_units:
+  table: amr_antibiotics_profile
+  column: measurement_units
+antimicrobial_measurement_sign:
+  table: amr_antibiotics_profile
+  column: measurement_sign
+antimicrobial_laboratory_typing_method:
+  table: amr_antibiotics_profile
+  column: laboratory_typing_method
+antimicrobial_laboratory_typing_platform:
+  table: amr_antibiotics_profile
+  column: laboratory_typing_platform
+antimicrobial_vendor_name:
+  table: amr_antibiotics_profile
+  column: vendor_name
+antimicrobial_testing_standard:
+  table: amr_antibiotics_profile
+  column: testing_standard
