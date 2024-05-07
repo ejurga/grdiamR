@@ -96,3 +96,36 @@ compare_lookup_tables <- function(){
   return(discrepancies)
 
 }
+
+norun <- function(){
+  err <- c()
+  for (col in names(column_mapping)){
+    x <- column_mapping[[col]]
+    y <- fk %>% filter(table_name==x$db_tab, column_name==x$db_col)
+    if (nrow(y)!=1){
+      message("error on ", col)
+      err <- c(err, col)
+    }
+  }
+  error_list <- column_mapping[match(err, names(column_mapping))]
+}
+
+#' Test for terms that are duplicated or misnamed
+#'
+#' Test for duplicated or misnamed ontology terms between the 3 forms of the
+#' GRDI template: the Excel Template , the YAML, and the Master Reference Guide.
+#'
+#' @return A dataframe of ontology terms and the tables they are found in
+#'
+#' @export
+test_for_term_descrepancies <- function(){
+  res <-
+    get_terms_from_excel_and_yaml_sources() %>%
+    group_by(Term, Id) %>%
+    summarise(Tables = list(unique(Table)), .groups = "drop")  %>%
+    mutate(n.tab = lengths(Tables)) %>%
+    rowwise() %>%
+    mutate(Tables = paste0(Tables, collapse = ", "))
+  return(res)
+}
+
