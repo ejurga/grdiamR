@@ -11,8 +11,10 @@ get_slots <- function(grdi_schema){
   amr_index <- unlist(lapply(FUN = grep, X = amr_regexes, x = names(slots)))
   # Remove AMR slots
   slots_no_amr <- slots[-amr_index]
-  # Return slots schema with no AMR slots
-  return(slots_no_amr)
+  # Now, just add back in the ampicillin ones.
+  amp_slots <- slots[grep(x = names(slots), "ampicillin_")]
+  slots_w_amp <- append(slots_no_amr, amp_slots)
+  return(slots_w_amp)
 }
 
 get_slot_values <- function(slot) {
@@ -78,7 +80,15 @@ create_grdi <- function(grdi_schema){
   fields <- list()
   groups <- c()
   for (slot in slots){
-    fields[[slot$name]] <- make_field(slot)
+
+    # get rid of the pesky ampicillin name
+    if (grepl(x = slot$name, "ampicillin")){
+      name <- sub(x=slot$name, "ampicillin", "antimicrobial")
+    } else {
+      name <- slot$name
+    }
+
+    fields[[name]] <- make_field(slot)
     groups <- c(groups,
                 grdi_schema$classes$GRDI$slot_usage[[slot$name]]$slot_group)
   }
@@ -91,17 +101,6 @@ create_grdi <- function(grdi_schema){
       groups = unique(groups),
       fields = fields
   )
-
-  # Some manual annoyance to get the AMR menus in there...
-  amr_menus <- grep(x = names(grdi_schema$enums), "antimicrobial", value = T)
-  for (amr_field in amr_menus){
-    field_name <- sub(x = amr_field, " menu", "")
-    grdi$fields[[field_name]] <-
-      list(group = "AMR Phenotypic Test Information" ,
-           flag = "optional",
-           pick_list = TRUE,
-           values = names(grdi_schema$enums[[amr_field]]$permissible_values))
-  }
 
   return(grdi)
 }
