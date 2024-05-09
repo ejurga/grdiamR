@@ -1,9 +1,49 @@
+#' Wrapper for [DBI::dbSendStatement] and [DBI::dbBind]
+#'
+#' For when you just want to insert something. Sends a message of the
+#' affected rows.
+#'
+#' @param db A [DBI] connection
+#' @param sql An sql statement, as a string. Use "$n" as placeholders for the
+#'  parameters
+#' @param params A list of the corresponding parameters.
+#'
+#' @export
+insertBind <- function(db, sql, params){
+  q <- dbSendStatement(db, sql)
+  dbBind(q, params)
+  n <- dbGetRowsAffected(q)
+  message("Inserted ", n)
+  dbClearResult(q)
+}
+
+#' Wrapper for [DBI::dbSendQuery], [DBI::dbBind], and [DBI::dbFetch]
+#'
+#' An operation sufficiently common I wrapped it into a function
+#'
+#' @param db A [DBI] connection
+#' @param sql An sql statement, as a string. Use "$n" as placeholders for the
+#'  parameters
+#' @param params A list of the corresponding parameters.
+#'
+#' @return A dataframe (tibble) of the results of the query
+#'
+#' @export
+sendBindFetch <- function(db, sql, params, verbose = FALSE){
+  q <- dbSendQuery(db, sql)
+  dbBind(q, params)
+  res <- dbFetch(q)  %>% as_tibble()
+  if (verbose == TRUE) message("Got ", dbGetRowCount(q), " records")
+  dbClearResult(q)
+  return(res)
+}
+
 #' Maps GRDI cols to their respective Tables and Fields in the VRM
 #'
 #' The VMR adheres as closely as possible to the naming conventions of the
-#' GRDI data specfication. This function takes a YAML file that maps the
+#' GRDI data specification. This function takes a YAML file that maps the
 #' GRDI columns to the VMR's respective representation of these fields
-#' in their table and column. This YAML must be maintained seperately,
+#' in their table and column. This YAML must be maintained separately,
 #' and is found in `data-raw/` of this package's source.
 #'
 #' @export
@@ -17,7 +57,112 @@ vmr_map_as_dataframe <- function(){
   return(x)
 }
 
+#' Convert GRDI ontology term into VMR ontology indexes
+#'
+#' Ontology terms in the VMR are indexed in its ontology_terms
+#' table. To insert these terms into their respective columns, they
+#' must be converted into these index ids. This function handles this
+#' from within R by querying the ontology_term table.
+#'
+#' @param db [DBI] connection to the VMR
+#' @param x Vector of ontology terms in the form of "term name [ONT:00000000]"
+#'
+#' @export
+convert_GRDI_ont_to_vmr_ids <- function(db, x){
 
+  ids <- extract_ont_id(x)
+  fac <- factor(ids)
+  levels(fac)
+
+  q <-
+    dbSendQuery(db,
+    "SELECT id, ontology_id FROM ontology_terms where ontology_id = $1")
+  dbBind(q, levels(fac))
+  res_df <- dbFetch(q)
+  dbClearResult(q)
+
+  res <-
+    factor(fac, levels = res_df$ontology_id, labels = res_df$id) |>
+    as.character() |> as.integer()
+
+  return(res)
+
+}
+
+#' If a list of parameters for [DBI::dbBind] contains NULL, set to NA
+#'
+#' For [DBI::dbBind], the parameters argument takes a list of the values
+#' to bind to the placeholders. The vectors comprising this list must all
+#' be the same length. Any argument that has not been initialized must be set
+#' to a vector of NAs, of same length as the other vectors.
+#'
+#' @param params List of vectors to pass onto [DBI::dbBind]
+#'
+replace_null_params_with_na <- function(params){
+  is.0 <- lengths(params)==0
+  if (any(is.0)) {
+    message("Setting ", sum(is.0), " field to all null")
+    params[is.0] <- list(rep(NA, length(params[[1]])))
+  }
+  return(params)
+}
+
+#' Populate a "multi-choice" table in the VMR
+#'
+#' Currently, the GRDI schema allows some fields to be populated with multiple
+#' values. These fields are implemented in the database as their own tables.
+#' These tables are all similar in their structure, so this convenience
+#' function quickly populates these tables given the values in the GRDI fields.
+#' The function assumes that the values are separated wither with a "," or
+#' "|".
+#'
+#' @param db [DBI] connection to VMR
+#' @param main_table VMR table that the multi-choice table is related to.
+#' @param df The working dataframe that at least contains the GRDI column, as
+#'  well as the id field that the multi-choice table will use as a foreign key.
+#' @param grdi_col str, the name of the GRDI column that can take on multiple
+#'  values
+#' @param col_table str, the name of the corresponding VMR table that
+#' implements the multiple choice functionality of the GRDI field.
+#'
+#' @export
+populate_multi_choice_table <-
+  function(db, df, main_table, grdi_col, col_table){
+
+  dflong <-
+    df %>%
+    select(all_of(c("id", grdi_col))) %>%
+    separate_longer_delim(all_of(grdi_col), "\\s[,|]\\s{0,1}")
+
+  fk <- dbReadTable(db, "foreign_keys") %>% as_tibble()
+
+  fk_sub <-
+    fk %>%
+    filter(table_name==col_table)
+
+  # Do we need to convert to ontology IDs
+  if ("ontology_term_id" %in% fk_sub$foreign_column_name){
+    dflong[[grdi_col]] <-
+      convert_GRDI_ont_to_vmr_ids(db, x = dflong[[grdi_col]])
+  }
+
+  fk_to_main <- fk_sub$column_name[fk_sub$foreign_table_name==main_table]
+
+  q_sql <-
+    glue::glue_sql(
+    "INSERT INTO {`col_table`} ({`fk_to_main`}, {`grdi_col`})
+    VALUES
+    ($1, $2)", .con = db)
+
+  message("Inserting into ", col_table)
+  q <- dbSendStatement(db, q_sql)
+  params = list()
+  params[[1]] <- dflong$id
+  params[[2]] <- dflong[[grdi_col]]
+  dbBind(q, params)
+  message("Inserted ", dbGetRowsAffected(q))
+  dbClearResult(q)
+  }
 
 #' Renaming a GRDI formatted dataframe to a VMR table
 #'
@@ -101,21 +246,3 @@ select_and_rename_to_vmr <- function(db, df, vmr_table){
 }
 
 
-#' Convert GRDI ontology term into VMR ontology indexes
-#'
-#' Ontology terms in the VMR are indexed in its ontology_terms
-#' table. To insert these terms into their respective columns, they
-#' must be converted into these index ids. This function handles this
-#' from within R.
-#'
-#' @param ont_table Ontology term index table from the VMR pulled as dataframe
-#' @x Vector of ontology terms in the form of "term name [ONT:00000000]"
-#'
-#' @export
-replace_with_vmr_ont_ids <- function(ont_table, x){
-  ids <- extract_ont_id(x)
-  res <- factor(ids,
-                levels = ont_table$ontology_id,
-                labels = ont_table$id) |> as.integer()
-  return(res)
-}
