@@ -53,9 +53,9 @@ replace_with_GRDI_term <- function(df, col_name, term_query, data_query = NULL,
     data_query <- term_query
   }
 
-  grdi_val <- grep_field_val(col_name = col_name,
-                            x = term_query,
-                            max.distance = term_query_dist)
+  grdi_val <- grep_field_val(field = col_name,
+                             x = term_query,
+                             max.distance = term_query_dist)
 
   if (length(grdi_val) == 0){
     message("No grdi term found for query ", term_query)
