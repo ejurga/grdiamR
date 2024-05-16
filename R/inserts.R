@@ -62,7 +62,6 @@ insert_collection_information <- function(db, df){
 
     params_no_null <- replace_null_params_with_na(params)
 
-    sql =
     ids <- sendBindFetch(db, sql = insert_sql, params = params_no_null)
 
     df <- left_join(ids, df, by = "sample_id")
@@ -137,8 +136,8 @@ check_for_existing_geo_loc_site <- function(db, x){
 
     res <-
       sendBindFetch(db,
-        sql = "SELECT * FROM geo_loc_name_sites WHERE geo_loc_name_site = $1",
-        params = list(levels(fac)))
+                    sql = "SELECT * FROM geo_loc_name_sites WHERE geo_loc_name_site = $1",
+                    params = list(levels(fac)))
 
     vals_in_db <- res$geo_loc_name_site
 
@@ -147,8 +146,8 @@ check_for_existing_geo_loc_site <- function(db, x){
       message("Values not found, Adding to geo_loc_name_sites: ",
               paste(vals_to_add, collapse = ", "))
       insertBind(db,
-        sql = "INSERT INTO geo_loc_name_sites (geo_loc_name_site) VALUES ($1)",
-        params = list(vals_to_add))
+                 sql = "INSERT INTO geo_loc_name_sites (geo_loc_name_site) VALUES ($1)",
+                 params = list(vals_to_add))
     }
   }
 
