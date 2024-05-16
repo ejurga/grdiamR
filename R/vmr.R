@@ -9,11 +9,11 @@
 #' @param params A list of the corresponding parameters.
 #'
 #' @export
-insertBind <- function(db, sql, params){
+insertBind <- function(db, sql, params, verbose = FALSE){
   q <- dbSendStatement(db, sql)
   dbBind(q, params)
   n <- dbGetRowsAffected(q)
-  message("Inserted ", n)
+  if (verbose == TRUE) message("Inserted ", n)
   dbClearResult(q)
 }
 
@@ -77,7 +77,7 @@ convert_GRDI_ont_to_vmr_ids <- function(db, x){
   q <-
     dbSendQuery(db,
     "SELECT id, ontology_id FROM ontology_terms where ontology_id = $1")
-  dbBind(q, levels(fac))
+  dbBind(q, list(levels(fac)))
   res_df <- dbFetch(q)
   dbClearResult(q)
 
@@ -245,4 +245,21 @@ select_and_rename_to_vmr <- function(db, df, vmr_table){
   return(select(df.s, matches("id"), everything()))
 }
 
-
+#' Convenience function to update alternative isolate IDS with notes
+#'
+#'
+insert_alternative_isolate_ids <- function(db, sample_ids, iso_ids, alt_ids, notes){
+  insertBind(
+    db,
+    "INSERT INTO alternative_isolate_ids (
+      isolate_id, alternative_isolate_id, note
+    ) VALUES (
+      (SELECT i.id
+        FROM isolates AS i
+        LEFT JOIN samples AS s ON i.sample_id = s.id
+        WHERE s.sample_collector_sample_id = $1
+        AND i.isolate_id = $2),
+      $3, $4)
+    ON CONFLICT ON CONSTRAINT alt_iso_ids_keep_unique DO NOTHING",
+    list(sample_ids, iso_ids, alt_ids, notes))
+}
