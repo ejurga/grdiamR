@@ -263,3 +263,30 @@ insert_alternative_isolate_ids <- function(db, sample_ids, iso_ids, alt_ids, not
     ON CONFLICT ON CONSTRAINT alt_iso_ids_keep_unique DO NOTHING",
     list(sample_ids, iso_ids, alt_ids, notes))
 }
+
+#' Convert GRDI columns to VMR IDs.
+#'
+#' Convert GRDI columns that take GRDI ontologies and convert them to VMR
+#' integer IDs.
+#'
+#' @param db Connection to the VMR
+#' @param df A dataframe formatted to match VMR column names
+#' @param vmr_table The target VMR table.
+#'
+all_table_ontology_columns_to_vmr_ids <- function(db, df, vmr_table){
+
+  # Get columns that are ontology fields
+  fk <- dbReadTable(db, "foreign_keys") %>% as_tibble()
+  ontology_columns <-
+    fk %>%
+    filter(table_name == "collection_information",
+           foreign_column_name == "ontology_term_id") %>%
+    pull(column_name)
+
+  for (col in ontology_columns){
+    df[[col]] <- convert_GRDI_ont_to_vmr_ids(db, df[[col]])
+  }
+
+  return(df)
+}
+
