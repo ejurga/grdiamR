@@ -244,3 +244,38 @@ amr_regexes <-function(){
       "_breakpoint")
 }
 
+#' Attempts to replace all values in a vector with GRDI terms
+#'
+#' @param x vector of strings to replace over
+#' @param grdi_col The name of the grdi column with the ontology terms
+#' @param term_query_dist For fuzzy searching.
+#' @param ignore.case ignore case, passed onto agrep
+#' @param ... passed onto agrep
+#'
+#' @return A vector with replaced terms, when found
+replace_all_with_grdi <- function(x, grdi_col, term_query_dist = 0,
+                                  ignore.case = TRUE, ...){
+
+  n_replaced = 0
+  result <- as.character(x)
+  vals <- unique(x)
+  for (val in vals){
+    grdi_val <- grep_field_val(field = grdi_col,
+                               x = val,
+                               max.distance = term_query_dist,
+                               ignore.case = ignore.case, ...)
+    if (length(grdi_val)>1) {
+      message("Too many grdi terms for value ", val, " : ",
+              paste(grdi_val, collapse = ", "))
+    } else if (length(grdi_val)==0) {
+      message("No grdi term for value ", val)
+    } else {
+      n_replaced <- n_replaced + sum(x==val)
+      message(paste("Setting", n_replaced, "instances of", val, "-->", grdi_val))
+      result[x==val] <- grdi_val
+    }
+  }
+
+  message("Total replaced: ", n_replaced, ", ", round(n_replaced/length(x)*100, digits = 1), "%")
+  return(result)
+}
