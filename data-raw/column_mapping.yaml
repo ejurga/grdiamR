@@ -349,6 +349,9 @@ DataHarmonizer provenance:
 antimicrobial_resistance_phenotype:
   table: amr_antibiotics_profile
   column: antimicrobial_phenotype
+antimicrobial_measurement:
+  table: amr_antibiotics_profile
+  column: measurement
 antimicrobial_measurement_units:
   table: amr_antibiotics_profile
   column: measurement_units
@@ -361,9 +364,27 @@ antimicrobial_laboratory_typing_method:
 antimicrobial_laboratory_typing_platform:
   table: amr_antibiotics_profile
   column: laboratory_typing_platform
-antimicrobial_vendor_name:
+antimicrobial_laboratory_typing_platform_version:
   table: amr_antibiotics_profile
-  column: vendor_name
+  column: laboratory_typing_platform_version
+antimicrobial_susceptible_breakpoint:             
+  table: amr_antibiotics_profile
+  column: testing_susceptible_breakpoint
+antimicrobial_intermediate_breakpoint:
+  table: amr_antibiotics_profile
+  column: testing_intermediate_breakpoint
+antimicrobial_resistant_breakpoint:
+  table: amr_antibiotics_profile
+  column: testing_resistance_breakpoint
 antimicrobial_testing_standard:
   table: amr_antibiotics_profile
   column: testing_standard
+antimicrobial_testing_standard_version:
+  table: amr_antibiotics_profile
+  column: testing_standard_version
+antimicrobial_testing_standard_details:
+  table: amr_antibiotics_profile
+  column: testing_standard_details
+antimicrobial_vendor_name:
+  table: amr_antibiotics_profile
+  column: vendor_name
