@@ -121,7 +121,7 @@ norun <- function(){
 test_for_term_descrepancies <- function(){
   res <-
     get_terms_from_excel_and_yaml_sources() %>%
-    group_by(Term, Id) %>%
+    group_by(Field, Term, Id) %>%
     summarise(Tables = list(unique(Table)), .groups = "drop")  %>%
     mutate(n.tab = lengths(Tables)) %>%
     rowwise() %>%
