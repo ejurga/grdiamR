@@ -25,6 +25,6 @@ Currently, the GRDI schema allows some fields to be populated with multiple
 values. These fields are implemented in the database as their own tables.
 These tables are all similar in their structure, so this convenience
 function quickly populates these tables given the values in the GRDI fields.
-The function assumes that the values are separated wither with a "," or
-"|".
+The function assumes that the values are separated wither with
+"|", or a ";"
 }
