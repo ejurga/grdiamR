@@ -170,7 +170,6 @@ agrep_across_all_field_terms <- function(x, ...) {
 #'
 #' @param x Vector of GRDI terms in the format "Term name \[ONTOLOGY:0000000\]"
 #'
-#' @export
 extract_ont_id <- function(x){
   sub(x = x, "^.+\\[([A-Za-z_]+)[:_]([A-Z0-9]+)\\]", "\\1:\\2")
 }
@@ -182,7 +181,6 @@ extract_ont_id <- function(x){
 #'
 #' @param x vector of ontology IDs
 #'
-#' @export
 extract_ontology_name <- function(x){
   tolower(sub(x = x, "([A-Za-z_]+):[A-Z0-9]+", "\\1"))
 }
@@ -196,7 +194,6 @@ extract_ontology_name <- function(x){
 #' @param data  a data frame
 #' @param <tidy-select> Column to separate
 #'
-#' @export
 separate_ontology_terms <- function(data, col){
   separate_wider_regex(data, {{ col }},
                        patterns = c(Term = "^.+",
@@ -253,10 +250,12 @@ amr_regexes <-function(){
 #' @param ... passed onto agrep
 #'
 #' @return A vector with replaced terms, when found
+#'
+#' @export
 replace_all_with_grdi <- function(x, grdi_col, term_query_dist = 0,
                                   ignore.case = TRUE, ...){
 
-  n_replaced = 0
+  n_total_replaced = 0
   result <- as.character(x)
   vals <- unique(x)
   for (val in vals){
@@ -270,12 +269,13 @@ replace_all_with_grdi <- function(x, grdi_col, term_query_dist = 0,
     } else if (length(grdi_val)==0) {
       message("No grdi term for value ", val)
     } else {
-      n_replaced <- n_replaced + sum(x==val)
+      n_replaced <- sum(x==val)
       message(paste("Setting", n_replaced, "instances of", val, "-->", grdi_val))
       result[x==val] <- grdi_val
+      n_total_replaced <- n_total_replaced + n_replaced
     }
   }
 
-  message("Total replaced: ", n_replaced, ", ", round(n_replaced/length(x)*100, digits = 1), "%")
+  message("Total replaced: ", n_total_replaced, ", ", round(n_total_replaced/length(x)*100, digits = 1), "%")
   return(result)
 }
