@@ -185,7 +185,7 @@ extract_ontology_name <- function(x){
   tolower(sub(x = x, "([A-Za-z_]+):[A-Z0-9]+", "\\1"))
 }
 
-#' Separate GRDI ontology terms into two columsn with the Term and ID
+#' Separate GRDI ontology terms into two columns with the Term and ID
 #'
 #' A tidyverse eval function. Uses [tidyr::separate_wider_regex] to
 #' separate a column of form "Term Name \[ONTOLOGY:00000000\]" in the
@@ -194,6 +194,7 @@ extract_ontology_name <- function(x){
 #' @param data  a data frame
 #' @param <tidy-select> Column to separate
 #'
+#' @export
 separate_ontology_terms <- function(data, col){
   separate_wider_regex(data, {{ col }},
                        patterns = c(Term = "^.+",
@@ -233,12 +234,12 @@ get_fields_of_group <- function(x){
 #'
 #' @export
 amr_regexes <-function(){
-    c("_resistance_phenotype",
-      "_measurement*",
-      "_laboratory_typing_*",
-      "_vendor_name",
-      "_testing_standard*",
-      "_breakpoint")
+    c("_resistance_phenotype$",
+      "_measurement(_units|_sign){0,1}$",
+      "_laboratory_typing_[a-z_]+$",
+      "_vendor_name$",
+      "_testing_standard[a-z_]{0,}$",
+      "_breakpoint$")
 }
 
 #' Attempts to replace all values in a vector with GRDI terms
@@ -253,11 +254,12 @@ amr_regexes <-function(){
 #'
 #' @export
 replace_all_with_grdi <- function(x, grdi_col, term_query_dist = 0,
-                                  ignore.case = TRUE, ...){
+                                  ignore.case = TRUE, setNA = NA, ...){
 
   n_total_replaced = 0
   result <- as.character(x)
   vals <- unique(x)
+  vals <- vals[!is.na(vals)]
   for (val in vals){
     grdi_val <- grep_field_val(field = grdi_col,
                                x = val,
@@ -269,13 +271,17 @@ replace_all_with_grdi <- function(x, grdi_col, term_query_dist = 0,
     } else if (length(grdi_val)==0) {
       message("No grdi term for value ", val)
     } else {
-      n_replaced <- sum(x==val)
+      n_replaced <- sum(x==val, na.rm = TRUE)
       message(paste("Setting", n_replaced, "instances of", val, "-->", grdi_val))
       result[x==val] <- grdi_val
       n_total_replaced <- n_total_replaced + n_replaced
     }
   }
-
+  if (anyNA(x)){
+    message("Setting ", sum(is.na(x)), " NA's --> ", setNA)
+    x[is.na(x)] <- setNA
+    n_total_replaced <- n_total_replaced + sum(is.na(x))
+  }
   message("Total replaced: ", n_total_replaced, ", ", round(n_total_replaced/length(x)*100, digits = 1), "%")
   return(result)
 }
