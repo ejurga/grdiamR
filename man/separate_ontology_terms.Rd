@@ -2,7 +2,7 @@
 % Please edit documentation in R/grdi.R
 \name{separate_ontology_terms}
 \alias{separate_ontology_terms}
-\title{Separate GRDI ontology terms into two columsn with the Term and ID}
+\title{Separate GRDI ontology terms into two columns with the Term and ID}
 \usage{
 separate_ontology_terms(data, col)
 }

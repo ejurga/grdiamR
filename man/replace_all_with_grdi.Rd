@@ -9,6 +9,7 @@ replace_all_with_grdi(
   grdi_col,
   term_query_dist = 0,
   ignore.case = TRUE,
+  setNA = NA,
   ...
 )
 }
